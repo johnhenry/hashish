@@ -45,7 +45,9 @@ Breaking changes throughout — see below.
 
 ### Added
 
-- `removeDocument(id)`, `hasDocument(id)`, `documentIds()`, `size()`.
+- `removeDocument(id)`, `hasDocument(id)`, `documentIds()`, `size()`, `getSignature(id)`
+  (exposes the raw MinHash signature, which was previously stored internally with no
+  public accessor).
 - `seed` option for deterministic, reproducible MinHash signatures across runs/processes.
 - `rerank` + `minSimilarity` + `limit` on `query()` — re-score LSH candidates by exact
   Jaccard similarity of shingle sets and filter/sort/cap the results.

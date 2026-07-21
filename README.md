@@ -88,6 +88,7 @@ candidates (fast, approximate, may include false positives).
 ### Other methods
 
 - `lsh.getDocument(id): Promise<string | undefined>`
+- `lsh.getSignature(id): Promise<number[] | undefined>` — the raw MinHash signature stored for `id`.
 - `lsh.hasDocument(id): Promise<boolean>`
 - `lsh.removeDocument(id): Promise<void>`
 - `lsh.documentIds(): Promise<DocumentId[]>`

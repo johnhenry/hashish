@@ -112,6 +112,11 @@ export class Lsh {
     return this.storage.get<string>(`document:${id}`)
   }
 
+  /** The raw MinHash signature stored for `id` (length `numberOfHashFunctions`), if indexed. */
+  async getSignature(id: DocumentId): Promise<number[] | undefined> {
+    return this.storage.get<number[]>(`signature:${id}`)
+  }
+
   async hasDocument(id: DocumentId): Promise<boolean> {
     return this.storage.has(`document:${id}`)
   }

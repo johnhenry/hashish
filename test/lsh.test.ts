@@ -36,6 +36,18 @@ describe('Lsh', () => {
       expect(await lsh.documentIds()).toEqual(expect.arrayContaining(['a', 'b']))
     })
 
+    it('exposes the raw MinHash signature via getSignature', async () => {
+      expect(await lsh.getSignature(1)).toBeUndefined()
+      await lsh.addDocument(1, 'the quick brown fox jumps over the lazy dog')
+      const signature = await lsh.getSignature(1)
+      expect(signature).toHaveLength(60) // numberOfHashFunctions
+      expect(signature!.every((value) => Number.isInteger(value))).toBe(true)
+      // deterministic for a given seed + document
+      const other = new Lsh({ seed: 1, numberOfHashFunctions: 60, bucketSize: 4, shingleSize: 4 })
+      await other.addDocument(1, 'the quick brown fox jumps over the lazy dog')
+      expect(await other.getSignature(1)).toEqual(signature)
+    })
+
     it('rejects an empty document', async () => {
       await expect(lsh.addDocument(1, '')).rejects.toThrow()
     })
