@@ -1,20 +1,74 @@
 {
-  "name": "@agtabesh/lsh",
-  "version": "0.1.0",
-  "description": "Locality-Sensitive Hashing implementation in node.js for fast and scalable approximate nearest neighbors search",
-  "main": "src/index.js",
-  "scripts": {
-    "test": "jest"
+  "name": "lsh-js",
+  "version": "1.0.0",
+  "description": "Locality-Sensitive Hashing (MinHash) for fast, scalable approximate nearest-neighbor / similarity search over text. TypeScript, zero native dependencies, pluggable storage (in-memory or Redis).",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "bench": "tsx benchmarks/bench.ts",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build"
+  },
+  "keywords": [
+    "locality-sensitive-hashing",
+    "lsh",
+    "minhash",
+    "similarity",
+    "nearest-neighbor",
+    "jaccard",
+    "text-similarity",
+    "typescript"
+  ],
   "author": "Ahmad Ganjtabesh",
+  "contributors": [
+    "John Henry"
+  ],
   "license": "MIT",
-  "keywords": ["locality sensitive hashing", "lsh", "similarity", "minhash"],
-  "dependencies": {
-    "@adonisjs/fold": "^4.0.9",
-    "murmurhash-native": "^3.3.0",
-    "random-words": "^1.1.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnhenry/lsh-js.git"
+  },
+  "homepage": "https://github.com/johnhenry/lsh-js#readme",
+  "bugs": {
+    "url": "https://github.com/johnhenry/lsh-js/issues"
   },
   "devDependencies": {
-    "jest": "^24.5.0"
+    "@types/node": "^26.1.1",
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0",
+    "vitest": "^4.1.10"
   }
 }
