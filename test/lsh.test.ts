@@ -164,6 +164,38 @@ describe('Lsh', () => {
     })
   })
 
+  describe('estimateSimilarity', () => {
+    it('estimates a higher similarity for a near-duplicate than for an unrelated document', async () => {
+      const lsh = new Lsh({ seed: 5, numberOfHashFunctions: 200, shingleSize: 5 })
+      await lsh.addDocument(
+        1,
+        'the quick brown fox jumps over the lazy dog while several curious woodland creatures watch nearby',
+      )
+      await lsh.addDocument(
+        2,
+        'the quick brown fox jumps over the lazy dog while several curious woodland creatures watch closely',
+      )
+      await lsh.addDocument(3, 'quarterly revenue projections indicate a modest increase across all regions')
+
+      const withNearDuplicate = await lsh.estimateSimilarity(1, 2)
+      const withUnrelated = await lsh.estimateSimilarity(1, 3)
+      expect(withNearDuplicate).toBeGreaterThan(withUnrelated)
+    })
+
+    it('is 1 when comparing a document to itself', async () => {
+      const lsh = new Lsh({ seed: 1, shingleSize: 4 })
+      await lsh.addDocument(1, 'the quick brown fox jumps over the lazy dog')
+      expect(await lsh.estimateSimilarity(1, 1)).toBe(1)
+    })
+
+    it('throws when either id is not indexed', async () => {
+      const lsh = new Lsh({ seed: 1, shingleSize: 4 })
+      await lsh.addDocument(1, 'the quick brown fox jumps over the lazy dog')
+      await expect(lsh.estimateSimilarity(1, 'ghost')).rejects.toThrow()
+      await expect(lsh.estimateSimilarity('ghost', 1)).rejects.toThrow()
+    })
+  })
+
   describe('deterministic seeding', () => {
     it('produces identical signatures/results across separate instances with the same seed', async () => {
       const config = { seed: 99, numberOfHashFunctions: 40, bucketSize: 2, shingleSize: 4 } as const

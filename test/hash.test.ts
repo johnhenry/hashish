@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Hash } from '../src/Hash'
+import { estimateSimilarity, Hash } from '../src/Hash'
 import { RandomSeed } from '../src/RandomSeed'
 
 describe('Hash', () => {
@@ -28,5 +28,30 @@ describe('Hash', () => {
   it('rejects an empty shingle set', () => {
     const hash = new Hash(8, new RandomSeed(8, 1))
     expect(() => hash.getSignature([])).toThrow()
+  })
+})
+
+describe('estimateSimilarity', () => {
+  it('is 1 for identical signatures', () => {
+    const hash = new Hash(50, new RandomSeed(50, 1))
+    const signature = hash.getSignature(['abc', 'bcd', 'cde'])
+    expect(estimateSimilarity(signature, signature)).toBe(1)
+  })
+
+  it('is the fraction of positions that agree', () => {
+    expect(estimateSimilarity([1, 2, 3, 4], [1, 2, 30, 40])).toBe(0.5)
+    expect(estimateSimilarity([1, 2, 3, 4], [10, 20, 30, 40])).toBe(0)
+  })
+
+  it('rejects signatures of different lengths', () => {
+    expect(() => estimateSimilarity([1, 2, 3], [1, 2])).toThrow()
+  })
+
+  it('estimates higher similarity for more overlapping shingle sets, on real signatures', () => {
+    const hash = new Hash(300, new RandomSeed(300, 3))
+    const a = hash.getSignature(['abc', 'bcd', 'cde', 'def', 'efg'])
+    const nearDuplicate = hash.getSignature(['abc', 'bcd', 'cde', 'def', 'efh']) // 4/5 shared
+    const unrelated = hash.getSignature(['zzz', 'yyy', 'xxx', 'www', 'vvv']) // none shared
+    expect(estimateSimilarity(a, nearDuplicate)).toBeGreaterThan(estimateSimilarity(a, unrelated))
   })
 })

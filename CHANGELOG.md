@@ -53,6 +53,9 @@ Breaking changes throughout — see below.
   Jaccard similarity of shingle sets and filter/sort/cap the results.
 - `shingleUnit: 'word'` — shingle over whitespace-delimited words instead of characters.
 - `lsh.similarity(textA, textB)` — exact Jaccard similarity, independent of the index.
+- `lsh.estimateSimilarity(idA, idB)` and the exported `estimateSimilarity(signatureA, signatureB)`
+  — MinHash's approximate similarity from comparing two signatures' position-agreement
+  rate, rather than re-shingling full document text.
 - `RedisStorage`, duck-typed against a minimal client interface (no hard dependency on
   any Redis client library) — fulfills the original README's invitation for a
   non-memory storage backend.

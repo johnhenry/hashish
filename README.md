@@ -94,7 +94,16 @@ candidates (fast, approximate, may include false positives).
 - `lsh.documentIds(): Promise<DocumentId[]>`
 - `lsh.size(): Promise<number>`
 - `lsh.similarity(textA, textB): number` — exact Jaccard similarity, independent of the index.
+- `lsh.estimateSimilarity(idA, idB): Promise<number>` — MinHash's _estimated_ similarity
+  between two indexed documents, from comparing their signatures (fast, approximate).
 - `lsh.clear(): Promise<void>`
+
+Also exported: `estimateSimilarity(signatureA, signatureB): number`, the underlying pure
+function — the fraction of positions at which two raw signatures agree. This is what a
+signature is actually useful for: a single signature value is meaningless on its own
+(it's just a hash output), but `P(signatureA[i] === signatureB[i])` equals the Jaccard
+similarity of the documents it was computed from, so the agreement rate across all
+positions approximates it.
 
 ### Storage adapters
 

@@ -1,4 +1,4 @@
-import { Hash } from './Hash'
+import { estimateSimilarity as estimateSignatureSimilarity, Hash } from './Hash'
 import { RandomSeed } from './RandomSeed'
 import { Shingle } from './Shingle'
 import { MemoryStorage } from './storages/MemoryStorage'
@@ -191,6 +191,18 @@ export class Lsh {
   /** Exact Jaccard similarity between two shingle sets, independent of the index. */
   similarity(a: string, b: string): number {
     return jaccard(new Set(this.shingle.shingle(a)), new Set(this.shingle.shingle(b)))
+  }
+
+  /**
+   * MinHash's *estimated* Jaccard similarity between two indexed documents, computed
+   * from their stored signatures (fast, approximate — unlike `similarity()`, which is
+   * exact but must re-shingle both documents' full text).
+   */
+  async estimateSimilarity(idA: DocumentId, idB: DocumentId): Promise<number> {
+    const [signatureA, signatureB] = await Promise.all([this.getSignature(idA), this.getSignature(idB)])
+    if (!signatureA) throw new Error(`No document indexed with id "${String(idA)}".`)
+    if (!signatureB) throw new Error(`No document indexed with id "${String(idB)}".`)
+    return estimateSignatureSimilarity(signatureA, signatureB)
   }
 
   async clear(): Promise<void> {

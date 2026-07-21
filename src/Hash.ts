@@ -28,3 +28,23 @@ export class Hash {
     return signature
   }
 }
+
+/**
+ * MinHash's estimate of the Jaccard similarity between two signatures: the fraction of
+ * positions where they agree. This is what makes signatures comparable "by eye" — a
+ * single signature value is meaningless on its own, but `P(signatureA[i] === signatureB[i])`
+ * equals the Jaccard similarity of the documents they were computed from, so counting
+ * matching positions approximates it. Accuracy improves with more hash functions; with n
+ * functions the estimate's standard error is roughly `sqrt(p(1-p)/n)`.
+ */
+export function estimateSimilarity(signatureA: number[], signatureB: number[]): number {
+  if (signatureA.length !== signatureB.length) {
+    throw new Error('Signatures must have the same length to compare.')
+  }
+  if (signatureA.length === 0) return 1
+  let agreement = 0
+  for (let i = 0; i < signatureA.length; i += 1) {
+    if (signatureA[i] === signatureB[i]) agreement += 1
+  }
+  return agreement / signatureA.length
+}
