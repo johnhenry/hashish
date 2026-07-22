@@ -56,7 +56,7 @@ describe('RedisStorage', () => {
 
   it('namespaces keys under the given prefix', async () => {
     await storage.set('doc:1', 'hi')
-    expect(await client.get('lsh:doc:1')).toBe(JSON.stringify('hi'))
+    expect(await client.get('hashish:doc:1')).toBe(JSON.stringify('hi'))
   })
 
   it('supports document ids that are numbers or strings via bucket round-trip', async () => {

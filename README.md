@@ -27,26 +27,26 @@ npm install hashish
 ## Usage
 
 ```ts
-import { Lsh } from 'hashish'
+import { Hashish } from 'hashish'
 
-const lsh = new Lsh({
+const hashish = new Hashish({
   shingleSize: 5,
   numberOfHashFunctions: 120,
   bucketSize: 4, // rows per LSH band; lower = more recall, higher = more precision
 })
 
-await lsh.addDocument(1, 'the quick brown fox jumps over the lazy dog')
-await lsh.addDocument(2, 'the quick brown fox jumps over the lazy dog again')
-await lsh.addDocument(3, 'quarterly revenue projections indicate a modest increase')
+await hashish.addDocument(1, 'the quick brown fox jumps over the lazy dog')
+await hashish.addDocument(2, 'the quick brown fox jumps over the lazy dog again')
+await hashish.addDocument(3, 'quarterly revenue projections indicate a modest increase')
 
 // find documents similar to document 1
-const byId = await lsh.query({ id: 1 })
+const byId = await hashish.query({ id: 1 })
 
 // or query with raw text instead of an indexed id
-const byText = await lsh.query({ text: 'the quick brown fox' })
+const byText = await hashish.query({ text: 'the quick brown fox' })
 
 // re-rank LSH candidates by exact Jaccard similarity, and drop weak matches
-const ranked = await lsh.query({ id: 1, rerank: true, minSimilarity: 0.3, limit: 10 })
+const ranked = await hashish.query({ id: 1, rerank: true, minSimilarity: 0.3, limit: 10 })
 // => [{ id: 2, similarity: 0.87 }]
 ```
 
@@ -55,7 +55,7 @@ in-memory or a network-backed adapter like Redis.
 
 ## API
 
-### `new Lsh(options?)`
+### `new Hashish(options?)`
 
 | option                  | default         | description                                                                     |
 | ----------------------- | --------------- | ------------------------------------------------------------------------------- |
@@ -66,12 +66,12 @@ in-memory or a network-backed adapter like Redis.
 | `bucketSize`            | `4`             | Default rows-per-band for `query()`; smaller = higher recall / lower precision. |
 | `seed`                  | random          | Seed the hash-function generator for reproducible signatures across runs.       |
 
-### `lsh.addDocument(id, text): Promise<void>`
+### `hashish.addDocument(id, text): Promise<void>`
 
 Indexes a document under `id`. Throws on an empty document, or one too short to
 produce even a single shingle (e.g. whitespace-only text under word shingling).
 
-### `lsh.query({ id | text, bucketSize?, rerank?, minSimilarity?, limit? }): Promise<QueryResult[]>`
+### `hashish.query({ id | text, bucketSize?, rerank?, minSimilarity?, limit? }): Promise<QueryResult[]>`
 
 Finds candidate documents similar to the given indexed `id` or raw `text`.
 
@@ -88,16 +88,16 @@ candidates (fast, approximate, may include false positives).
 
 ### Other methods
 
-- `lsh.getDocument(id): Promise<string | undefined>`
-- `lsh.getSignature(id): Promise<number[] | undefined>` — the raw MinHash signature stored for `id`.
-- `lsh.hasDocument(id): Promise<boolean>`
-- `lsh.removeDocument(id): Promise<void>`
-- `lsh.documentIds(): Promise<DocumentId[]>`
-- `lsh.size(): Promise<number>`
-- `lsh.similarity(textA, textB): number` — exact Jaccard similarity, independent of the index.
-- `lsh.estimateSimilarity(idA, idB): Promise<number>` — MinHash's _estimated_ similarity
+- `hashish.getDocument(id): Promise<string | undefined>`
+- `hashish.getSignature(id): Promise<number[] | undefined>` — the raw MinHash signature stored for `id`.
+- `hashish.hasDocument(id): Promise<boolean>`
+- `hashish.removeDocument(id): Promise<void>`
+- `hashish.documentIds(): Promise<DocumentId[]>`
+- `hashish.size(): Promise<number>`
+- `hashish.similarity(textA, textB): number` — exact Jaccard similarity, independent of the index.
+- `hashish.estimateSimilarity(idA, idB): Promise<number>` — MinHash's _estimated_ similarity
   between two indexed documents, from comparing their signatures (fast, approximate).
-- `lsh.clear(): Promise<void>`
+- `hashish.clear(): Promise<void>`
 
 Also exported: `estimateSimilarity(signatureA, signatureB): number`, the underlying pure
 function — the fraction of positions at which two raw signatures agree. This is what a
@@ -110,18 +110,18 @@ positions approximates it.
 
 ```ts
 // portable snapshot: config + every document's raw text, works with any storage backend
-const dump = await lsh.exportIndex()
-const restored = await Lsh.importIndex(dump) // re-shingles + re-hashes everything
+const dump = await hashish.exportIndex()
+const restored = await Hashish.importIndex(dump) // re-shingles + re-hashes everything
 
 // move an existing index straight to a different storage backend
-const migrated = await lsh.migrateTo(new RedisStorage(new Redis()))
+const migrated = await hashish.migrateTo(new RedisStorage(new Redis()))
 ```
 
 `exportIndex()`/`importIndex()` round-trip by replaying `addDocument()` for every
 document, so they work between _any_ two storage backends. Signatures only come back
-byte-identical if you set `seed` on the original `Lsh` — without it, the rebuilt index
+byte-identical if you set `seed` on the original `Hashish` — without it, the rebuilt index
 is still fully correct, just hashed with fresh random seeds. `migrateTo()` is shorthand
-for `Lsh.importIndex(await lsh.exportIndex(), destination)`.
+for `Hashish.importIndex(await hashish.exportIndex(), destination)`.
 
 If you're moving between two `MemoryStorage` instances (e.g. serializing to disk and
 back) and want to skip re-hashing entirely, dump the storage itself instead:
@@ -129,9 +129,9 @@ back) and want to skip re-hashing entirely, dump the storage itself instead:
 ```ts
 import { MemoryStorage } from 'hashish'
 
-const json = JSON.stringify(lsh.storage) // MemoryStorage defines toJSON()
+const json = JSON.stringify(hashish.storage) // MemoryStorage defines toJSON()
 const restoredStorage = MemoryStorage.fromJSON(JSON.parse(json))
-const restored = new Lsh({ ...originalOptions, storage: restoredStorage })
+const restored = new Hashish({ ...originalOptions, storage: restoredStorage })
 ```
 
 This only round-trips into another `MemoryStorage` — it's a dump of that adapter's
@@ -142,14 +142,14 @@ shared, durable index.
 ### Storage adapters
 
 ```ts
-import { Lsh, MemoryStorage, RedisStorage } from 'hashish'
+import { Hashish, MemoryStorage, RedisStorage } from 'hashish'
 
 // default — in-process, not shared across restarts or other processes
-new Lsh({ storage: new MemoryStorage() })
+new Hashish({ storage: new MemoryStorage() })
 
 // share an index across processes / persist it, using any client you've already configured
 import Redis from 'ioredis'
-new Lsh({ storage: new RedisStorage(new Redis()) })
+new Hashish({ storage: new RedisStorage(new Redis()) })
 ```
 
 `RedisStorage` is duck-typed against a minimal `RedisLikeClient` interface (`get`,

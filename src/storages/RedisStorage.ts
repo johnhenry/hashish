@@ -22,13 +22,13 @@ export interface RedisLikeClient {
  * @example
  * ```ts
  * import Redis from 'ioredis'
- * const lsh = new Lsh({ storage: new RedisStorage(new Redis()) })
+ * const hashish = new Hashish({ storage: new RedisStorage(new Redis()) })
  * ```
  */
 export class RedisStorage implements StorageAdapter {
   constructor(
     private readonly client: RedisLikeClient,
-    private readonly prefix = 'lsh:',
+    private readonly prefix = 'hashish:',
   ) {}
 
   private namespaced(key: string): string {

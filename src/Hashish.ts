@@ -2,12 +2,12 @@ import { estimateSimilarity as estimateSignatureSimilarity, Hash } from './Hash'
 import { RandomSeed } from './RandomSeed'
 import { Shingle } from './Shingle'
 import { MemoryStorage } from './storages/MemoryStorage'
-import type { DocumentId, LshExport, LshOptions, Query, QueryResult, StorageAdapter } from './types'
+import type { DocumentId, HashishExport, HashishOptions, Query, QueryResult, StorageAdapter } from './types'
 
 const DEFAULT_SHINGLE_SIZE = 5
 const DEFAULT_NUMBER_OF_HASH_FUNCTIONS = 120
 const DEFAULT_BUCKET_SIZE = 4
-const DOCUMENT_IDS_KEY = '__lsh_document_ids__'
+const DOCUMENT_IDS_KEY = '__hashish_document_ids__'
 
 function jaccard(a: Set<string>, b: Set<string>): number {
   if (a.size === 0 && b.size === 0) return 1
@@ -17,7 +17,7 @@ function jaccard(a: Set<string>, b: Set<string>): number {
   return union === 0 ? 0 : intersection / union
 }
 
-export class Lsh {
+export class Hashish {
   /** The underlying storage adapter (the default `MemoryStorage` if none was injected). */
   readonly storage: StorageAdapter
   private readonly shingle: Shingle
@@ -26,7 +26,7 @@ export class Lsh {
   private readonly defaultBucketSize: number
   private readonly seed?: number
 
-  constructor(options: LshOptions = {}) {
+  constructor(options: HashishOptions = {}) {
     const shingleSize = options.shingleSize ?? DEFAULT_SHINGLE_SIZE
     const shingleUnit = options.shingleUnit ?? 'char'
     const numberOfHashFunctions = options.numberOfHashFunctions ?? DEFAULT_NUMBER_OF_HASH_FUNCTIONS
@@ -214,11 +214,11 @@ export class Lsh {
 
   /**
    * A portable snapshot of this index: its configuration plus every document's raw text.
-   * Pair with `Lsh.importIndex()` to rebuild an equivalent index elsewhere (any storage
+   * Pair with `Hashish.importIndex()` to rebuild an equivalent index elsewhere (any storage
    * backend, since it's re-derived from scratch) — or, for a same-storage-type shortcut
    * that skips re-hashing entirely, serialize `MemoryStorage` itself (see `MemoryStorage.toJSON`).
    */
-  async exportIndex(): Promise<LshExport> {
+  async exportIndex(): Promise<HashishExport> {
     const ids = await this.documentIds()
     const documents = await Promise.all(ids.map(async (id) => ({ id, text: await this.getDocument(id) })))
     return {
@@ -243,21 +243,21 @@ export class Lsh {
    * set — without it, the rebuilt index still works correctly, just with freshly
    * generated hash-function seeds.
    */
-  static async importIndex(data: LshExport, storage?: StorageAdapter): Promise<Lsh> {
-    const lsh = new Lsh({ ...data.options, storage })
+  static async importIndex(data: HashishExport, storage?: StorageAdapter): Promise<Hashish> {
+    const hashish = new Hashish({ ...data.options, storage })
     for (const { id, text } of data.documents) {
-      await lsh.addDocument(id, text)
+      await hashish.addDocument(id, text)
     }
-    return lsh
+    return hashish
   }
 
   /**
    * Moves this index to a different storage backend — e.g. from the default
    * `MemoryStorage` to a `RedisStorage` you want to share across processes. Shorthand
-   * for `Lsh.importIndex(await this.exportIndex(), destination)`; this instance is left
-   * untouched, and a new `Lsh` backed by `destination` is returned.
+   * for `Hashish.importIndex(await this.exportIndex(), destination)`; this instance is left
+   * untouched, and a new `Hashish` backed by `destination` is returned.
    */
-  async migrateTo(destination: StorageAdapter): Promise<Lsh> {
-    return Lsh.importIndex(await this.exportIndex(), destination)
+  async migrateTo(destination: StorageAdapter): Promise<Hashish> {
+    return Hashish.importIndex(await this.exportIndex(), destination)
   }
 }

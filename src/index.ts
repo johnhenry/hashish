@@ -1,7 +1,7 @@
-import { Lsh } from './Lsh'
-import type { LshOptions } from './types'
+import { Hashish } from './Hashish'
+import type { HashishOptions } from './types'
 
-export { Lsh } from './Lsh'
+export { Hashish } from './Hashish'
 export { MemoryStorage } from './storages/MemoryStorage'
 export { RedisStorage } from './storages/RedisStorage'
 export type { RedisLikeClient } from './storages/RedisStorage'
@@ -9,17 +9,17 @@ export { murmurhash3_32 } from './murmurhash'
 export { estimateSimilarity } from './Hash'
 export type {
   DocumentId,
-  LshExport,
-  LshOptions,
+  HashishExport,
+  HashishOptions,
   Query,
   QueryResult,
   ShingleUnit,
   StorageAdapter,
 } from './types'
 
-/** Convenience factory, equivalent to `new Lsh(options)`. */
-export function createLsh(options?: LshOptions): Lsh {
-  return new Lsh(options)
+/** Convenience factory, equivalent to `new Hashish(options)`. */
+export function createHashish(options?: HashishOptions): Hashish {
+  return new Hashish(options)
 }
 
-export default Lsh
+export default Hashish

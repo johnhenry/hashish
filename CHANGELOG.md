@@ -2,9 +2,11 @@
 
 ## 0.0.0 — Renamed to `hashish`
 
-Renamed the package (and the GitHub repo) from `lsh-js` to `hashish`. No functional
-changes from 1.0.0 below — version reset to `0.0.0` to mark this as a fresh pre-release
-baseline under the new name.
+Renamed the package (and the GitHub repo) from `lsh-js` to `hashish`, and renamed the
+main exported class from `Lsh` to `Hashish` to match (`LshOptions` → `HashishOptions`,
+`LshExport` → `HashishExport`, `createLsh` → `createHashish`). No behavioral changes
+from 1.0.0 below — version reset to `0.0.0` to mark this as a fresh pre-release baseline
+under the new name.
 
 ## 1.0.0 — TypeScript rewrite
 
@@ -35,8 +37,8 @@ Breaking changes throughout — see below.
 - **Async API.** `addDocument`, `getDocument`, `query`, `clear`, etc. all return
   `Promise`s now, so a storage backend can be network-backed (e.g. Redis) without a
   separate sync/async code path.
-- **No more global singleton.** `Lsh.getInstance(config)` is gone; `config` after the
-  first call used to be silently ignored. Use `new Lsh(options)` (or `createLsh(options)`)
+- **No more global singleton.** `Hashish.getInstance(config)` is gone; `config` after the
+  first call used to be silently ignored. Use `new Hashish(options)` (or `createHashish(options)`)
   — you can now run multiple independent indexes in one process.
 - **No more `@adonisjs/fold` DI container.** Storage/config wiring is now plain
   constructor injection. `storage` is passed as a `StorageAdapter` _instance_
@@ -58,19 +60,19 @@ Breaking changes throughout — see below.
 - `rerank` + `minSimilarity` + `limit` on `query()` — re-score LSH candidates by exact
   Jaccard similarity of shingle sets and filter/sort/cap the results.
 - `shingleUnit: 'word'` — shingle over whitespace-delimited words instead of characters.
-- `lsh.similarity(textA, textB)` — exact Jaccard similarity, independent of the index.
-- `lsh.estimateSimilarity(idA, idB)` and the exported `estimateSimilarity(signatureA, signatureB)`
+- `hashish.similarity(textA, textB)` — exact Jaccard similarity, independent of the index.
+- `hashish.estimateSimilarity(idA, idB)` and the exported `estimateSimilarity(signatureA, signatureB)`
   — MinHash's approximate similarity from comparing two signatures' position-agreement
   rate, rather than re-shingling full document text.
 - `RedisStorage`, duck-typed against a minimal client interface (no hard dependency on
   any Redis client library) — fulfills the original README's invitation for a
   non-memory storage backend.
-- `lsh.exportIndex()` / `Lsh.importIndex()` — a portable snapshot (config + every
+- `hashish.exportIndex()` / `Hashish.importIndex()` — a portable snapshot (config + every
   document's raw text) that rebuilds an equivalent index on any storage backend by
   replaying `addDocument()`.
-- `lsh.migrateTo(destination)` — shorthand for exporting and re-importing into a
+- `hashish.migrateTo(destination)` — shorthand for exporting and re-importing into a
   different storage backend (e.g. `MemoryStorage` → `RedisStorage`).
-- `lsh.storage` is now a public, readonly property, and `MemoryStorage.toJSON()` /
+- `hashish.storage` is now a public, readonly property, and `MemoryStorage.toJSON()` /
   `MemoryStorage.fromJSON()` dump/restore its full internal state directly (documents,
   signatures, and buckets) with no re-hashing — a faster alternative to
   `exportIndex()`/`importIndex()` when moving between two `MemoryStorage` instances.

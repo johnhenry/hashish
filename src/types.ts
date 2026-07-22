@@ -13,7 +13,7 @@ export interface StorageAdapter {
   clear(): Promise<void>
 }
 
-export interface LshOptions {
+export interface HashishOptions {
   /** Where documents, signatures, and LSH buckets are persisted. Defaults to an in-memory Map. */
   storage?: StorageAdapter
   /** Shingle (n-gram) length. Default: 5. */
@@ -49,13 +49,13 @@ export interface QueryResult {
 }
 
 /**
- * Portable snapshot of an `Lsh` index: its configuration plus every indexed document's
- * raw text. `Lsh.importIndex()` rebuilds an equivalent index from this by replaying
+ * Portable snapshot of a `Hashish` index: its configuration plus every indexed document's
+ * raw text. `Hashish.importIndex()` rebuilds an equivalent index from this by replaying
  * `addDocument` for each entry — so it works regardless of storage backend, at the cost
  * of re-shingling and re-hashing everything. Signatures only come out byte-identical on
  * import if `options.seed` is set (omitting it means a fresh random seed each time).
  */
-export interface LshExport {
+export interface HashishExport {
   options: {
     shingleSize: number
     shingleUnit: ShingleUnit

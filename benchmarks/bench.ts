@@ -1,4 +1,4 @@
-import { Lsh } from '../src/Lsh'
+import { Hashish } from '../src/Hashish'
 
 const WORDS = [
   'the',
@@ -36,12 +36,12 @@ function randomDocument(wordCount: number): string {
 
 async function run() {
   const numberOfDocuments = 1000
-  const lsh = new Lsh({ seed: 1, numberOfHashFunctions: 120, bucketSize: 4, shingleSize: 5 })
+  const hashish = new Hashish({ seed: 1, numberOfHashFunctions: 120, bucketSize: 4, shingleSize: 5 })
   const documents = Array.from({ length: numberOfDocuments }, () => randomDocument(100))
 
   const addStart = performance.now()
   for (let i = 0; i < numberOfDocuments; i += 1) {
-    await lsh.addDocument(i, documents[i]!)
+    await hashish.addDocument(i, documents[i]!)
   }
   const addMs = performance.now() - addStart
   console.log(`Indexed ${numberOfDocuments} documents (~100 words each) in ${addMs.toFixed(1)}ms`)
@@ -49,7 +49,7 @@ async function run() {
   const queryStart = performance.now()
   const numberOfQueries = 100
   for (let i = 0; i < numberOfQueries; i += 1) {
-    await lsh.query({ id: i })
+    await hashish.query({ id: i })
   }
   const queryMs = performance.now() - queryStart
   console.log(
