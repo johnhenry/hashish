@@ -59,6 +59,15 @@ Breaking changes throughout — see below.
 - `RedisStorage`, duck-typed against a minimal client interface (no hard dependency on
   any Redis client library) — fulfills the original README's invitation for a
   non-memory storage backend.
+- `lsh.exportIndex()` / `Lsh.importIndex()` — a portable snapshot (config + every
+  document's raw text) that rebuilds an equivalent index on any storage backend by
+  replaying `addDocument()`.
+- `lsh.migrateTo(destination)` — shorthand for exporting and re-importing into a
+  different storage backend (e.g. `MemoryStorage` → `RedisStorage`).
+- `lsh.storage` is now a public, readonly property, and `MemoryStorage.toJSON()` /
+  `MemoryStorage.fromJSON()` dump/restore its full internal state directly (documents,
+  signatures, and buckets) with no re-hashing — a faster alternative to
+  `exportIndex()`/`importIndex()` when moving between two `MemoryStorage` instances.
 - Full TypeScript types, dual ESM/CJS build, GitHub Actions CI (Node 18/20/22),
   ESLint + Prettier, Vitest test suite, a benchmark script.
 

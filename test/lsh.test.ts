@@ -220,6 +220,77 @@ describe('Lsh', () => {
     })
   })
 
+  describe('exportIndex / importIndex / migrateTo', () => {
+    const docs: Array<[number, string]> = [
+      [1, 'the quick brown fox jumps over the lazy dog while several creatures watch nearby'],
+      [2, 'the quick brown fox jumps over the lazy dog while several creatures watch closely'],
+      [3, 'quarterly revenue projections indicate a modest increase across all regions'],
+    ]
+
+    it('exportIndex captures the config and every document', async () => {
+      const lsh = new Lsh({ seed: 42, shingleSize: 5, numberOfHashFunctions: 60, bucketSize: 3 })
+      for (const [id, text] of docs) await lsh.addDocument(id, text)
+
+      const exported = await lsh.exportIndex()
+      expect(exported.options).toEqual({
+        shingleSize: 5,
+        shingleUnit: 'char',
+        numberOfHashFunctions: 60,
+        bucketSize: 3,
+        seed: 42,
+      })
+      expect(exported.documents).toHaveLength(3)
+      expect(exported.documents).toEqual(expect.arrayContaining(docs.map(([id, text]) => ({ id, text }))))
+    })
+
+    it('importIndex rebuilds a fully working, byte-identical index when seed is set', async () => {
+      const original = new Lsh({ seed: 42, shingleSize: 5, numberOfHashFunctions: 60, bucketSize: 3 })
+      for (const [id, text] of docs) await original.addDocument(id, text)
+
+      const restored = await Lsh.importIndex(await original.exportIndex())
+
+      expect(await restored.size()).toBe(3)
+      for (const [id, text] of docs) {
+        expect(await restored.getDocument(id)).toBe(text)
+        expect(await restored.getSignature(id)).toEqual(await original.getSignature(id))
+      }
+      expect((await restored.query({ id: 1 })).map((r) => r.id)).toEqual(
+        (await original.query({ id: 1 })).map((r) => r.id),
+      )
+    })
+
+    it('importIndex still produces a correct (if not byte-identical) index without a seed', async () => {
+      const original = new Lsh({ shingleSize: 5, numberOfHashFunctions: 60, bucketSize: 1 })
+      for (const [id, text] of docs) await original.addDocument(id, text)
+
+      const restored = await Lsh.importIndex(await original.exportIndex())
+      // near-duplicate 2 should still be found as similar to 1 in the rebuilt index
+      expect((await restored.query({ id: 1, rerank: true })).map((r) => r.id)).toContain(2)
+    })
+
+    it('importIndex can load into an arbitrary storage backend', async () => {
+      const original = new Lsh({ seed: 1, shingleSize: 4 })
+      await original.addDocument(1, 'the quick brown fox jumps over the lazy dog')
+
+      const destination = new MemoryStorage()
+      const restored = await Lsh.importIndex(await original.exportIndex(), destination)
+      expect(restored.storage).toBe(destination)
+      expect(await restored.getDocument(1)).toBe('the quick brown fox jumps over the lazy dog')
+    })
+
+    it('migrateTo moves the index to a new storage backend without mutating the original', async () => {
+      const original = new Lsh({ seed: 1, shingleSize: 4 })
+      await original.addDocument(1, 'the quick brown fox jumps over the lazy dog')
+
+      const destination = new MemoryStorage()
+      const migrated = await original.migrateTo(destination)
+
+      expect(migrated.storage).toBe(destination)
+      expect(await migrated.getDocument(1)).toBe('the quick brown fox jumps over the lazy dog')
+      expect(await original.getDocument(1)).toBe('the quick brown fox jumps over the lazy dog') // untouched
+    })
+  })
+
   describe('word shingling', () => {
     it('supports word-level shingles as an alternative to character shingles', async () => {
       const lsh = new Lsh({ shingleUnit: 'word', shingleSize: 3, seed: 1 })

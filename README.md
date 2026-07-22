@@ -105,6 +105,39 @@ signature is actually useful for: a single signature value is meaningless on its
 similarity of the documents it was computed from, so the agreement rate across all
 positions approximates it.
 
+### Exporting, importing, and migrating an index
+
+```ts
+// portable snapshot: config + every document's raw text, works with any storage backend
+const dump = await lsh.exportIndex()
+const restored = await Lsh.importIndex(dump) // re-shingles + re-hashes everything
+
+// move an existing index straight to a different storage backend
+const migrated = await lsh.migrateTo(new RedisStorage(new Redis()))
+```
+
+`exportIndex()`/`importIndex()` round-trip by replaying `addDocument()` for every
+document, so they work between _any_ two storage backends. Signatures only come back
+byte-identical if you set `seed` on the original `Lsh` — without it, the rebuilt index
+is still fully correct, just hashed with fresh random seeds. `migrateTo()` is shorthand
+for `Lsh.importIndex(await lsh.exportIndex(), destination)`.
+
+If you're moving between two `MemoryStorage` instances (e.g. serializing to disk and
+back) and want to skip re-hashing entirely, dump the storage itself instead:
+
+```ts
+import { MemoryStorage } from 'lsh-js'
+
+const json = JSON.stringify(lsh.storage) // MemoryStorage defines toJSON()
+const restoredStorage = MemoryStorage.fromJSON(JSON.parse(json))
+const restored = new Lsh({ ...originalOptions, storage: restoredStorage })
+```
+
+This only round-trips into another `MemoryStorage` — it's a dump of that adapter's
+internal representation, not a portable format. A Redis-backed index doesn't need an
+equivalent: pointing another process at the same Redis instance already gives you a
+shared, durable index.
+
 ### Storage adapters
 
 ```ts

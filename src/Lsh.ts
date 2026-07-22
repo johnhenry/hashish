@@ -2,7 +2,7 @@ import { estimateSimilarity as estimateSignatureSimilarity, Hash } from './Hash'
 import { RandomSeed } from './RandomSeed'
 import { Shingle } from './Shingle'
 import { MemoryStorage } from './storages/MemoryStorage'
-import type { DocumentId, LshOptions, Query, QueryResult, StorageAdapter } from './types'
+import type { DocumentId, LshExport, LshOptions, Query, QueryResult, StorageAdapter } from './types'
 
 const DEFAULT_SHINGLE_SIZE = 5
 const DEFAULT_NUMBER_OF_HASH_FUNCTIONS = 120
@@ -18,11 +18,13 @@ function jaccard(a: Set<string>, b: Set<string>): number {
 }
 
 export class Lsh {
-  private readonly storage: StorageAdapter
+  /** The underlying storage adapter (the default `MemoryStorage` if none was injected). */
+  readonly storage: StorageAdapter
   private readonly shingle: Shingle
   private readonly hash: Hash
   private readonly numberOfHashFunctions: number
   private readonly defaultBucketSize: number
+  private readonly seed?: number
 
   constructor(options: LshOptions = {}) {
     const shingleSize = options.shingleSize ?? DEFAULT_SHINGLE_SIZE
@@ -42,6 +44,7 @@ export class Lsh {
     this.hash = new Hash(numberOfHashFunctions, new RandomSeed(numberOfHashFunctions, options.seed))
     this.numberOfHashFunctions = numberOfHashFunctions
     this.defaultBucketSize = bucketSize
+    this.seed = options.seed
   }
 
   /**
@@ -207,5 +210,54 @@ export class Lsh {
 
   async clear(): Promise<void> {
     await this.storage.clear()
+  }
+
+  /**
+   * A portable snapshot of this index: its configuration plus every document's raw text.
+   * Pair with `Lsh.importIndex()` to rebuild an equivalent index elsewhere (any storage
+   * backend, since it's re-derived from scratch) — or, for a same-storage-type shortcut
+   * that skips re-hashing entirely, serialize `MemoryStorage` itself (see `MemoryStorage.toJSON`).
+   */
+  async exportIndex(): Promise<LshExport> {
+    const ids = await this.documentIds()
+    const documents = await Promise.all(ids.map(async (id) => ({ id, text: await this.getDocument(id) })))
+    return {
+      options: {
+        shingleSize: this.shingle.size,
+        shingleUnit: this.shingle.unit,
+        numberOfHashFunctions: this.numberOfHashFunctions,
+        bucketSize: this.defaultBucketSize,
+        seed: this.seed,
+      },
+      documents: documents.filter((doc): doc is { id: DocumentId; text: string } => doc.text !== undefined),
+    }
+  }
+
+  /**
+   * Rebuilds an index from an `exportIndex()` snapshot by replaying `addDocument` for
+   * every entry (sequentially, so it stays correct against storage adapters that don't
+   * guarantee atomic bucket writes). Pass `storage` to load into something other than a
+   * fresh `MemoryStorage` (e.g. a `RedisStorage` you want to seed with this data).
+   *
+   * Signatures come out byte-identical to the original only if `data.options.seed` is
+   * set — without it, the rebuilt index still works correctly, just with freshly
+   * generated hash-function seeds.
+   */
+  static async importIndex(data: LshExport, storage?: StorageAdapter): Promise<Lsh> {
+    const lsh = new Lsh({ ...data.options, storage })
+    for (const { id, text } of data.documents) {
+      await lsh.addDocument(id, text)
+    }
+    return lsh
+  }
+
+  /**
+   * Moves this index to a different storage backend — e.g. from the default
+   * `MemoryStorage` to a `RedisStorage` you want to share across processes. Shorthand
+   * for `Lsh.importIndex(await this.exportIndex(), destination)`; this instance is left
+   * untouched, and a new `Lsh` backed by `destination` is returned.
+   */
+  async migrateTo(destination: StorageAdapter): Promise<Lsh> {
+    return Lsh.importIndex(await this.exportIndex(), destination)
   }
 }

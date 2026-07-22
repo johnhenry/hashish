@@ -41,4 +41,21 @@ export class MemoryStorage implements StorageAdapter {
   async clear(): Promise<void> {
     this.values = new Map()
   }
+
+  /**
+   * Dumps the entire internal state (documents, signatures, and buckets) as plain,
+   * JSON-serializable data — named `toJSON` so `JSON.stringify(storage)` works directly.
+   * Pair with `MemoryStorage.fromJSON()` to restore it without re-hashing anything. This
+   * only round-trips into another `MemoryStorage`; it isn't a format other adapters read.
+   */
+  toJSON(): Array<[string, unknown]> {
+    return [...this.values.entries()]
+  }
+
+  /** Restores a `MemoryStorage` from a `toJSON()` dump. */
+  static fromJSON(entries: Array<[string, unknown]>): MemoryStorage {
+    const storage = new MemoryStorage()
+    storage.values = new Map(entries)
+    return storage
+  }
 }

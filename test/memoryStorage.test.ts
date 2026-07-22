@@ -57,4 +57,34 @@ describe('MemoryStorage', () => {
     expect(await storage.has('a')).toBe(false)
     expect(await storage.getBucket('b')).toEqual([])
   })
+
+  describe('toJSON / fromJSON', () => {
+    it('round-trips full internal state, including falsy values', async () => {
+      const storage = new MemoryStorage()
+      await storage.set('doc:1', 'hello')
+      await storage.set('zero', 0)
+      await storage.addToBucket('band:0:x', 1)
+      await storage.addToBucket('band:0:x', 'abc')
+
+      const restored = MemoryStorage.fromJSON(storage.toJSON())
+      expect(await restored.get('doc:1')).toBe('hello')
+      expect(await restored.get('zero')).toBe(0)
+      expect(await restored.getBucket('band:0:x')).toEqual([1, 'abc'])
+    })
+
+    it('is a plain array, so JSON.stringify(storage) works directly', async () => {
+      const storage = new MemoryStorage()
+      await storage.set('a', 1)
+      const restored = MemoryStorage.fromJSON(JSON.parse(JSON.stringify(storage)) as Array<[string, unknown]>)
+      expect(await restored.get('a')).toBe(1)
+    })
+
+    it('is independent of the original after restoring (no shared Map)', async () => {
+      const storage = new MemoryStorage()
+      await storage.set('a', 1)
+      const restored = MemoryStorage.fromJSON(storage.toJSON())
+      await storage.set('a', 2)
+      expect(await restored.get('a')).toBe(1)
+    })
+  })
 })
