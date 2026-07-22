@@ -1,6 +1,6 @@
 {
-  "name": "lsh-js",
-  "version": "1.0.0",
+  "name": "hashish",
+  "version": "0.0.0",
   "description": "Locality-Sensitive Hashing (MinHash) for fast, scalable approximate nearest-neighbor / similarity search over text. TypeScript, zero native dependencies, pluggable storage (in-memory or Redis).",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -53,11 +53,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/johnhenry/lsh-js.git"
+    "url": "git+https://github.com/johnhenry/hashish.git"
   },
-  "homepage": "https://github.com/johnhenry/lsh-js#readme",
+  "homepage": "https://github.com/johnhenry/hashish#readme",
   "bugs": {
-    "url": "https://github.com/johnhenry/lsh-js/issues"
+    "url": "https://github.com/johnhenry/hashish/issues"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

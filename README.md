@@ -1,13 +1,14 @@
-# lsh-js
+# hashish
 
 [Locality-sensitive hashing](https://en.wikipedia.org/wiki/Locality-sensitive_hashing)
 (LSH) for fast, scalable approximate nearest-neighbor / similarity search over text.
 Documents are shingled, MinHashed, and bucketed with LSH banding so that similar
 documents are cheap to find without comparing every pair.
 
-> This is a modernized fork of [`agtabesh/lsh-js`](https://github.com/agtabesh/lsh-js),
-> rewritten in TypeScript with a fixed banding algorithm, no native dependencies, and a
-> pluggable storage layer. See [CHANGELOG.md](./CHANGELOG.md) for what changed and why.
+> `hashish` is a modernized fork of [`agtabesh/lsh-js`](https://github.com/agtabesh/lsh-js)
+> (previously published under that same name), rewritten in TypeScript with a fixed
+> banding algorithm, no native dependencies, and a pluggable storage layer. See
+> [CHANGELOG.md](./CHANGELOG.md) for what changed and why.
 
 - **Zero native dependencies.** MurmurHash3 is implemented in pure JS (no `node-gyp`,
   works in Node, browsers, and edge runtimes).
@@ -20,13 +21,13 @@ documents are cheap to find without comparing every pair.
 ## Install
 
 ```
-npm install lsh-js
+npm install hashish
 ```
 
 ## Usage
 
 ```ts
-import { Lsh } from 'lsh-js'
+import { Lsh } from 'hashish'
 
 const lsh = new Lsh({
   shingleSize: 5,
@@ -126,7 +127,7 @@ If you're moving between two `MemoryStorage` instances (e.g. serializing to disk
 back) and want to skip re-hashing entirely, dump the storage itself instead:
 
 ```ts
-import { MemoryStorage } from 'lsh-js'
+import { MemoryStorage } from 'hashish'
 
 const json = JSON.stringify(lsh.storage) // MemoryStorage defines toJSON()
 const restoredStorage = MemoryStorage.fromJSON(JSON.parse(json))
@@ -141,7 +142,7 @@ shared, durable index.
 ### Storage adapters
 
 ```ts
-import { Lsh, MemoryStorage, RedisStorage } from 'lsh-js'
+import { Lsh, MemoryStorage, RedisStorage } from 'hashish'
 
 // default — in-process, not shared across restarts or other processes
 new Lsh({ storage: new MemoryStorage() })

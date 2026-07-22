@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.0 — Renamed to `hashish`
+
+Renamed the package (and the GitHub repo) from `lsh-js` to `hashish`. No functional
+changes from 1.0.0 below — version reset to `0.0.0` to mark this as a fresh pre-release
+baseline under the new name.
+
 ## 1.0.0 — TypeScript rewrite
 
 A full rewrite of [`agtabesh/lsh-js`](https://github.com/agtabesh/lsh-js) v0.1.0.
