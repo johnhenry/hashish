@@ -21,13 +21,13 @@ documents are cheap to find without comparing every pair.
 ## Install
 
 ```
-npm install hashish
+npm install @johnhenry/hashish
 ```
 
 ## Usage
 
 ```ts
-import { Hashish } from 'hashish'
+import { Hashish } from '@johnhenry/hashish'
 
 const hashish = new Hashish({
   shingleSize: 5,
@@ -127,7 +127,7 @@ If you're moving between two `MemoryStorage` instances (e.g. serializing to disk
 back) and want to skip re-hashing entirely, dump the storage itself instead:
 
 ```ts
-import { MemoryStorage } from 'hashish'
+import { MemoryStorage } from '@johnhenry/hashish'
 
 const json = JSON.stringify(hashish.storage) // MemoryStorage defines toJSON()
 const restoredStorage = MemoryStorage.fromJSON(JSON.parse(json))
@@ -142,7 +142,7 @@ shared, durable index.
 ### Storage adapters
 
 ```ts
-import { Hashish, MemoryStorage, RedisStorage } from 'hashish'
+import { Hashish, MemoryStorage, RedisStorage } from '@johnhenry/hashish'
 
 // default — in-process, not shared across restarts or other processes
 new Hashish({ storage: new MemoryStorage() })

@@ -1,12 +1,17 @@
 # Changelog
 
-## 0.0.0 — Renamed to `hashish`
+## 0.0.0 — Renamed to `hashish`, then rescoped to `@johnhenry/hashish`
 
 Renamed the package (and the GitHub repo) from `lsh-js` to `hashish`, and renamed the
 main exported class from `Lsh` to `Hashish` to match (`LshOptions` → `HashishOptions`,
 `LshExport` → `HashishExport`, `createLsh` → `createHashish`). No behavioral changes
 from 1.0.0 below — version reset to `0.0.0` to mark this as a fresh pre-release baseline
 under the new name.
+
+Published under `@johnhenry/hashish` instead of the unscoped `hashish` — the unscoped
+name has been an unrelated, unmaintained package since 2011 ("Hash data structure
+manipulation functions"), never available to publish to. Nothing under the unscoped
+name was ever actually published from this repo; this is the first real publish.
 
 ## 1.0.0 — TypeScript rewrite
 

@@ -1,8 +1,12 @@
 {
-  "name": "hashish",
+  "name": "@johnhenry/hashish",
   "version": "0.0.0",
   "description": "Locality-Sensitive Hashing (MinHash) for fast, scalable approximate nearest-neighbor / similarity search over text. TypeScript, zero native dependencies, pluggable storage (in-memory or Redis).",
   "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
