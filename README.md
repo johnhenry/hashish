@@ -1,5 +1,9 @@
 # hashish
 
+[![npm version](https://img.shields.io/npm/v/%40johnhenry%2Fhashish.svg)](https://www.npmjs.com/package/@johnhenry/hashish)
+[![CI](https://github.com/johnhenry/hashish/actions/workflows/ci.yml/badge.svg)](https://github.com/johnhenry/hashish/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/%40johnhenry%2Fhashish.svg)](LICENSE)
+
 [Locality-sensitive hashing](https://en.wikipedia.org/wiki/Locality-sensitive_hashing)
 (LSH) for fast, scalable approximate nearest-neighbor / similarity search over text.
 Documents are shingled, MinHashed, and bucketed with LSH banding so that similar
