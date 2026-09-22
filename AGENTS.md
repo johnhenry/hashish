@@ -29,12 +29,12 @@ build.
 - **LSH buckets must be keyed by `(position, value)`, never by bare hash
   value.** The original `lsh-js` fork this package rewrites keyed buckets
   by signature value alone, so two documents sharing a hash value at
-  *different* signature positions were wrongly bucketed together — not a
+  _different_ signature positions were wrongly bucketed together — not a
   valid LSH bucket. If you touch `addDocument`/`query`'s bucketing, keep
   the position in the key.
 - **Signatures are not portable across seeds or hash-function versions.**
   `exportIndex()`/`importIndex()` re-shingle and re-hash everything, so
-  they round-trip between *any* two storage backends — but they only come
+  they round-trip between _any_ two storage backends — but they only come
   back byte-identical if `seed` was set on the original instance. Don't
   assume a raw exported signature is meaningful outside the `Hashish`
   instance (and MurmurHash3 implementation/version) that produced it.
@@ -52,6 +52,7 @@ build.
 ## Definition of done
 
 A change is done when all of the following hold, not just when tests pass:
+
 - A regression test exists for any bug fixed.
 - Anything the feature does **not** do is stated in the README, not only in
   an issue comment.
