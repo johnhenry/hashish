@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.0 — Renamed to `hashish`, then rescoped to `@johnhenry/hashish`
+## 0.0.0 — Renamed to `hashish`, then rescoped to `@johnhenry/hashish` (2026-09-10)
 
 Renamed the package (and the GitHub repo) from `lsh-js` to `hashish`, and renamed the
 main exported class from `Lsh` to `Hashish` to match (`LshOptions` → `HashishOptions`,
@@ -13,7 +13,7 @@ name has been an unrelated, unmaintained package since 2011 ("Hash data structur
 manipulation functions"), never available to publish to. Nothing under the unscoped
 name was ever actually published from this repo; this is the first real publish.
 
-## 1.0.0 — TypeScript rewrite
+## 1.0.0 — TypeScript rewrite (2026-07-21)
 
 A full rewrite of [`agtabesh/lsh-js`](https://github.com/agtabesh/lsh-js) v0.1.0.
 Breaking changes throughout — see below.

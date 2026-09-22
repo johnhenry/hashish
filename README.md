@@ -4,6 +4,8 @@
 [![CI](https://github.com/johnhenry/hashish/actions/workflows/ci.yml/badge.svg)](https://github.com/johnhenry/hashish/actions/workflows/ci.yml)
 [![license](https://img.shields.io/npm/l/%40johnhenry%2Fhashish.svg)](LICENSE)
 
+Full documentation: [opensource.johnhenry.me/hashish](https://opensource.johnhenry.me/hashish/)
+
 [Locality-sensitive hashing](https://en.wikipedia.org/wiki/Locality-sensitive_hashing)
 (LSH) for fast, scalable approximate nearest-neighbor / similarity search over text.
 Documents are shingled, MinHashed, and bucketed with LSH banding so that similar
