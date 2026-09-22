@@ -59,7 +59,7 @@
     "type": "git",
     "url": "git+https://github.com/johnhenry/hashish.git"
   },
-  "homepage": "https://github.com/johnhenry/hashish#readme",
+  "homepage": "https://opensource.johnhenry.me/hashish/",
   "bugs": {
     "url": "https://github.com/johnhenry/hashish/issues"
   },
