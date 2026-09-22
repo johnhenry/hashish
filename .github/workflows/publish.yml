@@ -11,7 +11,7 @@ on:
     # body is uses: <external-repo>/...@v1. This gives a second,
     # idempotency-safe chance to fire.
     tags:
-      - "v*"
+      - 'v*'
   workflow_dispatch: {}
 
 jobs:
