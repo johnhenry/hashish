@@ -17,7 +17,7 @@ on:
 jobs:
   publish:
     permissions:
-      contents: read
+      contents: write # tag + GitHub Release by-product of npm-publish.yml
       id-token:
         write # required by the reusable workflow's provenance step --
         # see johnhenry/workflows' README for why this must be declared here too.
